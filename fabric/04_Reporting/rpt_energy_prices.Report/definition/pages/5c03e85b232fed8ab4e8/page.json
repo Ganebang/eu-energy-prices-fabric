@@ -1,8 +1,0 @@
-{
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/1.1.0/schema.json",
-  "name": "5c03e85b232fed8ab4e8",
-  "displayName": "Europe — vue d'ensemble",
-  "displayOption": "FitToPage",
-  "height": 720,
-  "width": 1280
-}
