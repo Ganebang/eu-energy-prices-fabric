@@ -1,0 +1,163 @@
+table fact_price_interval
+	lineageTag: 76770f38-b92b-40f5-bff1-49478765fe3f
+
+	/// Moyenne simple des prix day-ahead sur les intervalles filtrés
+	measure 'Prix moyen (c€/kWh)' = AVERAGE ( fact_price_interval[price_ct_kwh] )
+		formatString: 0.00
+		displayFolder: 1. Prix
+		lineageTag: 5b31e539-bcec-437f-8ec3-ea1724d351d1
+
+	/// Prix le plus bas
+	measure 'Prix min (c€/kWh)' = MIN ( fact_price_interval[price_ct_kwh] )
+		formatString: 0.00
+		displayFolder: 1. Prix
+		lineageTag: a92552da-fc7c-4a25-bcf7-11e081da56dd
+
+	/// Prix le plus haut
+	measure 'Prix max (c€/kWh)' = MAX ( fact_price_interval[price_ct_kwh] )
+		formatString: 0.00
+		displayFolder: 1. Prix
+		lineageTag: d16b85ba-740a-48ae-b4cb-788a7428fc7b
+
+	/// Médiane, robuste aux pics
+	measure 'Prix médian (c€/kWh)' = MEDIAN ( fact_price_interval[price_ct_kwh] )
+		formatString: 0.00
+		displayFolder: 1. Prix
+		lineageTag: 8075be82-a99c-479f-b60c-e64f4d1608e6
+
+	/// Écart max - min : potentiel de déplacement de consommation
+	measure 'Amplitude (c€/kWh)' = [Prix max (c€/kWh)] - [Prix min (c€/kWh)]
+		formatString: 0.00
+		displayFolder: 1. Prix
+		lineageTag: a8b4f38a-f1a8-4a09-bb62-9ab1d3d40321
+
+	/// Pointe EPEX : 08h-20h
+	measure 'Prix moyen pointe (c€/kWh)' = CALCULATE ( [Prix moyen (c€/kWh)], dim_time_of_day[is_peak_period] = TRUE () )
+		formatString: 0.00
+		displayFolder: 1. Prix
+		lineageTag: 3f7a6b90-0c26-41bd-a0f9-a3b56f284fae
+
+	measure 'Prix moyen hors pointe (c€/kWh)' = CALCULATE ( [Prix moyen (c€/kWh)], dim_time_of_day[is_peak_period] = FALSE () )
+		formatString: 0.00
+		displayFolder: 1. Prix
+		lineageTag: 0b6e118e-9352-401a-9c8d-8463fa7c4000
+
+	measure 'Prime de pointe %' = DIVIDE ( [Prix moyen pointe (c€/kWh)] - [Prix moyen hors pointe (c€/kWh)], [Prix moyen hors pointe (c€/kWh)] )
+		formatString: 0.0%
+		displayFolder: 1. Prix
+		lineageTag: 487cdb51-6189-4b2a-9649-6eb8a02e2ccd
+
+	/// Même périmètre, la veille
+	measure 'Prix moyen J-1 (c€/kWh)' = CALCULATE ( [Prix moyen (c€/kWh)], DATEADD ( dim_date[calendar_date], -1, DAY ) )
+		formatString: 0.00
+		displayFolder: 1. Prix
+		lineageTag: f62daa61-bec9-4c2e-9f01-867cd9f8598f
+
+	measure 'Variation vs J-1 %' = DIVIDE ( [Prix moyen (c€/kWh)] - [Prix moyen J-1 (c€/kWh)], ABS ( [Prix moyen J-1 (c€/kWh)] ) )
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: 1. Prix
+		lineageTag: b4ccdda8-c8d2-49aa-8a41-fa03cc280dc0
+
+	/// Durée cumulée pendant laquelle le prix était négatif
+	measure 'Heures à prix négatif' = DIVIDE ( SUMX ( FILTER ( fact_price_interval, fact_price_interval[price_eur_mwh] < 0 ), fact_price_interval[resolution_minutes] ), 60 )
+		formatString: 0.0
+		displayFolder: 1. Prix
+		lineageTag: 48c2e83d-1a85-45bd-9162-18d1f41d6ba7
+
+	/// Heure de début de l'intervalle le moins cher
+	measure 'Créneau le moins cher' = VAR min_price = MIN ( fact_price_interval[price_ct_kwh] ) RETURN CALCULATE ( MIN ( dim_time_of_day[time_label] ), fact_price_interval[price_ct_kwh] = min_price )
+		displayFolder: 2. Conseil
+		lineageTag: 8deb6407-228f-4462-9b1f-1adfdcea70da
+
+	measure 'Créneau le plus cher' = VAR max_price = MAX ( fact_price_interval[price_ct_kwh] ) RETURN CALCULATE ( MIN ( dim_time_of_day[time_label] ), fact_price_interval[price_ct_kwh] = max_price )
+		displayFolder: 2. Conseil
+		lineageTag: 15eb09c0-69ad-4409-9be8-31effcc3c42b
+
+	/// Fraîcheur des données
+	measure 'Prix disponibles jusqu''au' = FORMAT ( MAX ( fact_price_interval[interval_start_local] ), "dd/MM/yyyy HH:mm" )
+		displayFolder: 9. Technique
+		lineageTag: 11d5eecc-b185-4426-98a8-a669e2cba2d4
+
+	column zone_code
+		dataType: string
+		isHidden
+		lineageTag: 360b58aa-658b-4486-954c-339710d2eee6
+		summarizeBy: none
+		sourceColumn: zone_code
+
+	column date_key
+		dataType: int64
+		isHidden
+		lineageTag: 265ae025-c911-4b4f-9cd5-d724e9c33fe2
+		summarizeBy: none
+		sourceColumn: date_key
+
+	column time_key
+		dataType: int64
+		isHidden
+		lineageTag: dabd1eb3-d499-4c14-900d-8246677d80b2
+		summarizeBy: none
+		sourceColumn: time_key
+
+	column interval_start_utc
+		dataType: dateTime
+		isHidden
+		lineageTag: f071f7c7-d5a9-411e-b5fe-df9336f63cc9
+		summarizeBy: none
+		sourceColumn: interval_start_utc
+
+	column interval_start_local
+		dataType: dateTime
+		lineageTag: 623df464-1163-43a5-bc33-35e9c8332a93
+		summarizeBy: none
+		sourceColumn: interval_start_local
+
+	column resolution_minutes
+		dataType: int64
+		lineageTag: b8bb05c0-a834-4439-858f-b5ecf0e520bc
+		summarizeBy: none
+		sourceColumn: resolution_minutes
+
+	column price_eur_mwh
+		dataType: decimal
+		lineageTag: f5b8cccb-1641-48e1-8375-c55e901c62c6
+		summarizeBy: none
+		sourceColumn: price_eur_mwh
+
+	column price_ct_kwh
+		dataType: decimal
+		lineageTag: 2d7601cf-0971-4577-988c-ca3684ba073e
+		summarizeBy: none
+		sourceColumn: price_ct_kwh
+
+	column is_negative_price
+		dataType: boolean
+		lineageTag: 5332db4d-7895-457a-bfc6-9c1b5836befc
+		summarizeBy: none
+		sourceColumn: is_negative_price
+
+	column price_rank_in_day
+		dataType: int64
+		lineageTag: 9036844c-cd04-4fce-baf3-c0c09e2838a3
+		summarizeBy: none
+		sourceColumn: price_rank_in_day
+
+	column intervals_in_day
+		dataType: int64
+		lineageTag: 740e5716-ecff-4af5-a421-b612eb9563a6
+		summarizeBy: none
+		sourceColumn: intervals_in_day
+
+	column consumption_advice
+		dataType: string
+		lineageTag: 1ff7588f-44f1-43b7-b0d7-8220ba6ac4d6
+		summarizeBy: none
+		sourceColumn: consumption_advice
+
+	partition fact_price_interval = entity
+		mode: directLake
+		source
+			entityName: fact_price_interval
+			schemaName: gold
+			expressionSource: DatabaseQuery
+

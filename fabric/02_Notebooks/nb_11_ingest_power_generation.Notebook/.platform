@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "nb_11_ingest_power_generation"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "620512fd-bf63-96b1-4cc0-0ace7ad9b4f9"
+  }
+}

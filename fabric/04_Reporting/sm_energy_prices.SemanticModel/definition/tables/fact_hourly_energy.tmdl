@@ -1,0 +1,212 @@
+table fact_hourly_energy
+	lineageTag: 104397a3-61bd-4cf3-ba5e-b2e6d291ac6e
+
+	/// Moyenne des prix horaires (grain heure)
+	measure 'Prix horaire moyen (c€/kWh)' = AVERAGE ( fact_hourly_energy[avg_price_ct_kwh] )
+		formatString: 0.00
+		displayFolder: 1. Prix
+		lineageTag: 37566cf0-0e1d-4695-abf5-1ab99534cade
+
+	measure 'Solaire moyen (MW)' = AVERAGE ( fact_hourly_energy[solar_mw] )
+		formatString: #,0
+		displayFolder: 3. Production & météo
+		lineageTag: 8275cc30-9fd3-4a13-b975-8a5a6a1e75b7
+
+	/// Terrestre + en mer
+	measure 'Éolien moyen (MW)' = AVERAGEX ( fact_hourly_energy, COALESCE ( fact_hourly_energy[wind_onshore_mw], 0 ) + COALESCE ( fact_hourly_energy[wind_offshore_mw], 0 ) )
+		formatString: #,0
+		displayFolder: 3. Production & météo
+		lineageTag: dbded04b-107c-4d95-91d1-d1ff0ee714d9
+
+	measure 'Consommation moyenne (MW)' = AVERAGE ( fact_hourly_energy[load_mw] )
+		formatString: #,0
+		displayFolder: 3. Production & météo
+		lineageTag: 6e5a52ee-5d39-4269-b9fa-9c02b0b881ea
+
+	/// Part de la charge couverte par les renouvelables
+	measure 'Part renouvelable %' = DIVIDE ( AVERAGE ( fact_hourly_energy[renewable_share_pct] ), 100 )
+		formatString: 0.0%
+		displayFolder: 3. Production & météo
+		lineageTag: 4465cb3a-78fe-4c60-8dc0-af3d81ff5a87
+
+	measure 'Température moyenne (°C)' = AVERAGE ( fact_hourly_energy[temperature_c] )
+		formatString: 0.0
+		displayFolder: 3. Production & météo
+		lineageTag: 1e179ffd-df41-4eab-98b4-79d6b7180426
+
+	measure 'Vent moyen 100 m (km/h)' = AVERAGE ( fact_hourly_energy[wind_speed_100m_kmh] )
+		formatString: 0.0
+		displayFolder: 3. Production & météo
+		lineageTag: 52578c88-1f4c-4a56-a106-a206ccbb16a1
+
+	/// Coefficient de Pearson (-1 à 1) entre vitesse du vent et prix horaire
+	measure 'Corrélation prix ~ vent' = ```
+			
+			VAR observations =
+			    FILTER ( fact_hourly_energy,
+			        NOT ISBLANK ( fact_hourly_energy[wind_speed_100m_kmh] ) && NOT ISBLANK ( fact_hourly_energy[avg_price_ct_kwh] ) )
+			VAR mean_x = AVERAGEX ( observations, fact_hourly_energy[wind_speed_100m_kmh] )
+			VAR mean_y = AVERAGEX ( observations, fact_hourly_energy[avg_price_ct_kwh] )
+			VAR covariance = SUMX ( observations, ( fact_hourly_energy[wind_speed_100m_kmh] - mean_x ) * ( fact_hourly_energy[avg_price_ct_kwh] - mean_y ) )
+			VAR spread_x = SQRT ( SUMX ( observations, ( fact_hourly_energy[wind_speed_100m_kmh] - mean_x ) ^ 2 ) )
+			VAR spread_y = SQRT ( SUMX ( observations, ( fact_hourly_energy[avg_price_ct_kwh] - mean_y ) ^ 2 ) )
+			RETURN DIVIDE ( covariance, spread_x * spread_y )
+			
+			```
+		formatString: 0.00
+		displayFolder: 4. Analyse
+		lineageTag: 0780ee44-cd26-4b72-bda7-a528bb15cdb6
+
+	/// Coefficient de Pearson entre rayonnement solaire et prix horaire
+	measure 'Corrélation prix ~ ensoleillement' = ```
+			
+			VAR observations =
+			    FILTER ( fact_hourly_energy,
+			        NOT ISBLANK ( fact_hourly_energy[shortwave_radiation_wm2] ) && NOT ISBLANK ( fact_hourly_energy[avg_price_ct_kwh] ) )
+			VAR mean_x = AVERAGEX ( observations, fact_hourly_energy[shortwave_radiation_wm2] )
+			VAR mean_y = AVERAGEX ( observations, fact_hourly_energy[avg_price_ct_kwh] )
+			VAR covariance = SUMX ( observations, ( fact_hourly_energy[shortwave_radiation_wm2] - mean_x ) * ( fact_hourly_energy[avg_price_ct_kwh] - mean_y ) )
+			VAR spread_x = SQRT ( SUMX ( observations, ( fact_hourly_energy[shortwave_radiation_wm2] - mean_x ) ^ 2 ) )
+			VAR spread_y = SQRT ( SUMX ( observations, ( fact_hourly_energy[avg_price_ct_kwh] - mean_y ) ^ 2 ) )
+			RETURN DIVIDE ( covariance, spread_x * spread_y )
+			
+			```
+		formatString: 0.00
+		displayFolder: 4. Analyse
+		lineageTag: a8480645-3955-499f-b103-790e0d3f2b33
+
+	measure 'Corrélation prix ~ part renouvelable' = ```
+			
+			VAR observations =
+			    FILTER ( fact_hourly_energy,
+			        NOT ISBLANK ( fact_hourly_energy[renewable_share_pct] ) && NOT ISBLANK ( fact_hourly_energy[avg_price_ct_kwh] ) )
+			VAR mean_x = AVERAGEX ( observations, fact_hourly_energy[renewable_share_pct] )
+			VAR mean_y = AVERAGEX ( observations, fact_hourly_energy[avg_price_ct_kwh] )
+			VAR covariance = SUMX ( observations, ( fact_hourly_energy[renewable_share_pct] - mean_x ) * ( fact_hourly_energy[avg_price_ct_kwh] - mean_y ) )
+			VAR spread_x = SQRT ( SUMX ( observations, ( fact_hourly_energy[renewable_share_pct] - mean_x ) ^ 2 ) )
+			VAR spread_y = SQRT ( SUMX ( observations, ( fact_hourly_energy[avg_price_ct_kwh] - mean_y ) ^ 2 ) )
+			RETURN DIVIDE ( covariance, spread_x * spread_y )
+			
+			```
+		formatString: 0.00
+		displayFolder: 4. Analyse
+		lineageTag: fd0f1c78-1a84-42a7-8963-5ddad4bed2bb
+
+	column zone_code
+		dataType: string
+		isHidden
+		lineageTag: 7595dac9-8e56-46de-b9c2-45619c8706d3
+		summarizeBy: none
+		sourceColumn: zone_code
+
+	column date_key
+		dataType: int64
+		isHidden
+		lineageTag: 3874d01c-4fbd-411b-8647-761e3fe59196
+		summarizeBy: none
+		sourceColumn: date_key
+
+	column hour_of_day
+		dataType: int64
+		lineageTag: 38557fd0-f83b-4962-8562-07012ccfe750
+		summarizeBy: none
+		sourceColumn: hour_of_day
+
+	column hour_start_utc
+		dataType: dateTime
+		isHidden
+		lineageTag: 12994ece-4528-4b69-84a1-ea3f68dda3d2
+		summarizeBy: none
+		sourceColumn: hour_start_utc
+
+	column hour_start_local
+		dataType: dateTime
+		lineageTag: aa01f558-38a5-4390-b51a-c555b9377852
+		summarizeBy: none
+		sourceColumn: hour_start_local
+
+	column avg_price_ct_kwh
+		dataType: decimal
+		lineageTag: 76d86233-9a43-4587-adab-90b3d8c39ad9
+		summarizeBy: none
+		sourceColumn: avg_price_ct_kwh
+
+	column solar_mw
+		dataType: decimal
+		lineageTag: 6d43bf02-4329-438c-8ce2-1580d4cc1217
+		summarizeBy: none
+		sourceColumn: solar_mw
+
+	column wind_onshore_mw
+		dataType: decimal
+		lineageTag: 47e27f42-9937-4b3c-8a2a-41284a20f2f8
+		summarizeBy: none
+		sourceColumn: wind_onshore_mw
+
+	column wind_offshore_mw
+		dataType: decimal
+		lineageTag: a47b3ec6-9cc1-4160-aebf-c06b281552b0
+		summarizeBy: none
+		sourceColumn: wind_offshore_mw
+
+	column nuclear_mw
+		dataType: decimal
+		lineageTag: b7fc6925-c03e-42f0-b950-c22d107ab076
+		summarizeBy: none
+		sourceColumn: nuclear_mw
+
+	column fossil_gas_mw
+		dataType: decimal
+		lineageTag: 76559fb7-e923-4245-b947-ae7fb4d32e21
+		summarizeBy: none
+		sourceColumn: fossil_gas_mw
+
+	column load_mw
+		dataType: decimal
+		lineageTag: 957bf521-ffd1-4ee2-b01a-791f6a175e00
+		summarizeBy: none
+		sourceColumn: load_mw
+
+	column renewable_share_pct
+		dataType: decimal
+		lineageTag: 63ded6cc-4b9c-41fe-a9ea-1367d2e50cc7
+		summarizeBy: none
+		sourceColumn: renewable_share_pct
+
+	column temperature_c
+		dataType: decimal
+		lineageTag: 44d9db1c-0a1f-4597-a9c0-9d39af65b267
+		summarizeBy: none
+		sourceColumn: temperature_c
+
+	column wind_speed_100m_kmh
+		dataType: decimal
+		lineageTag: b1baa142-faa6-4a3e-a20c-b9938ad9908a
+		summarizeBy: none
+		sourceColumn: wind_speed_100m_kmh
+
+	column shortwave_radiation_wm2
+		dataType: decimal
+		lineageTag: b5940b10-eeaa-4eae-888d-d00027897c7e
+		summarizeBy: none
+		sourceColumn: shortwave_radiation_wm2
+
+	column cloud_cover_pct
+		dataType: decimal
+		lineageTag: b3044615-92e2-4018-b31b-cc46982cd6c7
+		summarizeBy: none
+		sourceColumn: cloud_cover_pct
+
+	column is_weather_forecast
+		dataType: boolean
+		lineageTag: 991f0179-ad11-43fc-81e0-3433caea0e6b
+		summarizeBy: none
+		sourceColumn: is_weather_forecast
+
+	partition fact_hourly_energy = entity
+		mode: directLake
+		source
+			entityName: fact_hourly_energy
+			schemaName: gold
+			expressionSource: DatabaseQuery
+

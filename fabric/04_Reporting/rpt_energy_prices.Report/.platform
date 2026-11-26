@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "rpt_energy_prices",
+    "description": "Prix day-ahead EPEX — rapport en lecture seule (généré par nb_40_report_as_code)"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "fb56438b-c77e-ab6f-4ddc-29ba56a44413"
+  }
+}

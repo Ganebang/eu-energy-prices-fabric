@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "DataPipeline",
+    "displayName": "pl_energy_daily",
+    "description": "Daily EU day-ahead price ingestion: bronze -> silver (Spark) -> DQ -> gold (T-SQL)."
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "5fbb40ec-6340-b8b2-4d40-f5d062cd4447"
+  }
+}

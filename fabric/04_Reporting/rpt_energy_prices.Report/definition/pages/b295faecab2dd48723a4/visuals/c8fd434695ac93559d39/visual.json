@@ -1,0 +1,109 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
+  "name": "c8fd434695ac93559d39",
+  "position": {
+    "x": 790,
+    "y": 125,
+    "z": 1000,
+    "width": 470,
+    "height": 580,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "scatterChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_date"
+                    }
+                  },
+                  "Property": "calendar_date"
+                }
+              },
+              "queryRef": "dim_date.calendar_date",
+              "nativeQueryRef": "calendar_date"
+            }
+          ]
+        },
+        "X": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_hourly_energy"
+                    }
+                  },
+                  "Property": "Vent moyen 100 m (km/h)"
+                }
+              },
+              "queryRef": "fact_hourly_energy.Vent moyen 100 m (km/h)",
+              "nativeQueryRef": "Vent moyen 100 m (km/h)"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_hourly_energy"
+                    }
+                  },
+                  "Property": "Prix horaire moyen (c€/kWh)"
+                }
+              },
+              "queryRef": "fact_hourly_energy.Prix horaire moyen (c€/kWh)",
+              "nativeQueryRef": "Prix horaire moyen (c€/kWh)"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "visualHeader": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Chaque point = un jour : vent moyen vs prix moyen'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

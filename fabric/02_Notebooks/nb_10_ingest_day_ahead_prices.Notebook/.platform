@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "nb_10_ingest_day_ahead_prices"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "0cfbe3cf-7276-a399-4ba5-49fbce746309"
+  }
+}

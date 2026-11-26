@@ -1,0 +1,4 @@
+dependencies:
+  - pip:
+    - holidays==0.108
+    - semantic-link-labs==0.18.1

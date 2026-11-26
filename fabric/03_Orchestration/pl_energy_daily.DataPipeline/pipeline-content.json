@@ -1,0 +1,314 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "SetVariable",
+        "typeProperties": {
+          "variableName": "v_zone_list",
+          "value": {
+            "value": "@split(replace(pipeline().parameters.p_zone_codes, ' ', ''), ',')",
+            "type": "Expression"
+          }
+        },
+        "policy": {
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Set zone list",
+        "dependsOn": []
+      },
+      {
+        "type": "ForEach",
+        "typeProperties": {
+          "isSequential": false,
+          "batchCount": 2,
+          "items": {
+            "value": "@variables('v_zone_list')",
+            "type": "Expression"
+          },
+          "activities": [
+            {
+              "type": "TridentNotebook",
+              "typeProperties": {
+                "notebookId": "0cfbe3cf-7276-a399-4ba5-49fbce746309",
+                "workspaceId": "00000000-0000-0000-0000-000000000000",
+                "parameters": {
+                  "zone_code": {
+                    "value": {
+                      "value": "@item()",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "start_date": {
+                    "value": {
+                      "value": "@pipeline().parameters.p_start_date",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "end_date": {
+                    "value": {
+                      "value": "@pipeline().parameters.p_end_date",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "pipeline_run_id": {
+                    "value": {
+                      "value": "@pipeline().RunId",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  }
+                },
+                "sessionTag": "energy_ingestion"
+              },
+              "policy": {
+                "timeout": "0.00:20:00",
+                "retry": 2,
+                "retryIntervalInSeconds": 120,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Ingest day-ahead prices",
+              "dependsOn": []
+            },
+            {
+              "type": "TridentNotebook",
+              "typeProperties": {
+                "notebookId": "620512fd-bf63-96b1-4cc0-0ace7ad9b4f9",
+                "workspaceId": "00000000-0000-0000-0000-000000000000",
+                "parameters": {
+                  "zone_code": {
+                    "value": {
+                      "value": "@item()",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "start_date": {
+                    "value": {
+                      "value": "@pipeline().parameters.p_start_date",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "end_date": {
+                    "value": {
+                      "value": "@pipeline().parameters.p_end_date",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "pipeline_run_id": {
+                    "value": {
+                      "value": "@pipeline().RunId",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  }
+                },
+                "sessionTag": "energy_ingestion"
+              },
+              "policy": {
+                "timeout": "0.00:20:00",
+                "retry": 2,
+                "retryIntervalInSeconds": 120,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Ingest power generation",
+              "dependsOn": [
+                {
+                  "activity": "Ingest day-ahead prices",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TridentNotebook",
+              "typeProperties": {
+                "notebookId": "472f112c-05bc-87de-4791-7ac2bbe23c7e",
+                "workspaceId": "00000000-0000-0000-0000-000000000000",
+                "parameters": {
+                  "zone_code": {
+                    "value": {
+                      "value": "@item()",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "pipeline_run_id": {
+                    "value": {
+                      "value": "@pipeline().RunId",
+                      "type": "Expression"
+                    },
+                    "type": "string"
+                  },
+                  "past_days": {
+                    "value": {
+                      "value": "@if(empty(pipeline().parameters.p_start_date), 3, 92)",
+                      "type": "Expression"
+                    },
+                    "type": "int"
+                  }
+                },
+                "sessionTag": "energy_ingestion"
+              },
+              "policy": {
+                "timeout": "0.00:20:00",
+                "retry": 2,
+                "retryIntervalInSeconds": 120,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Ingest weather",
+              "dependsOn": [
+                {
+                  "activity": "Ingest power generation",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "name": "For each bidding zone",
+        "dependsOn": [
+          {
+            "activity": "Set zone list",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "64ee451a-4dfd-a8ed-41ed-bbf480ff7de5",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "lookback_days": {
+              "value": {
+                "value": "@pipeline().parameters.p_lookback_days",
+                "type": "Expression"
+              },
+              "type": "int"
+            },
+            "pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          },
+          "sessionTag": "energy_ingestion"
+        },
+        "policy": {
+          "timeout": "0.00:20:00",
+          "retry": 2,
+          "retryIntervalInSeconds": 120,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Data quality checks",
+        "dependsOn": [
+          {
+            "activity": "For each bidding zone",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[gold].[usp_refresh_gold]",
+          "storedProcedureParameters": {
+            "lookback_days": {
+              "value": {
+                "value": "@pipeline().parameters.p_lookback_days",
+                "type": "Expression"
+              },
+              "type": "Int32"
+            },
+            "full_reload": {
+              "value": {
+                "value": "@pipeline().parameters.p_full_reload",
+                "type": "Expression"
+              },
+              "type": "Boolean"
+            },
+            "pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            }
+          }
+        },
+        "linkedService": {
+          "name": "wh_energy_gold",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "2ca5fcde-7fd2-8d65-46f6-8e5f5e4466fb",
+              "endpoint": "g72ogiouiptu5ftqu27l23eqme-c2dqlmtw4lnuzixb5pd57fhw3a.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.00:30:00",
+          "retry": 1,
+          "retryIntervalInSeconds": 60,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Refresh gold layer",
+        "dependsOn": [
+          {
+            "activity": "Data quality checks",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      }
+    ],
+    "parameters": {
+      "p_zone_codes": {
+        "type": "string",
+        "defaultValue": "FR,BE,DE-LU,NL,ES"
+      },
+      "p_start_date": {
+        "type": "string"
+      },
+      "p_end_date": {
+        "type": "string"
+      },
+      "p_lookback_days": {
+        "type": "int",
+        "defaultValue": 3
+      },
+      "p_full_reload": {
+        "type": "bool",
+        "defaultValue": false
+      }
+    },
+    "variables": {
+      "v_zone_list": {
+        "type": "Array"
+      }
+    }
+  }
+}

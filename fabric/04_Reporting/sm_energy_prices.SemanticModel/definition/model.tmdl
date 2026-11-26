@@ -1,0 +1,15 @@
+model Model
+	culture: fr-FR
+	defaultPowerBIDataSourceVersion: powerBI_V3
+
+annotation PBI_ProTooling = ["DirectLakeOnSqlInWeb", "SLL"]
+
+ref table dim_bidding_zone
+ref table dim_date
+ref table dim_time_of_day
+ref table battery_scenario
+ref table fact_price_interval
+ref table fact_daily_price
+ref table fact_hourly_energy
+ref table fact_daily_battery
+

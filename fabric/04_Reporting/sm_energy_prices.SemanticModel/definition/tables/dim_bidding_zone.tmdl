@@ -1,0 +1,52 @@
+table dim_bidding_zone
+	lineageTag: f52bbda6-5c76-4542-8c2f-304ac206490e
+
+	column zone_code
+		dataType: string
+		lineageTag: a03e4be5-da14-4191-9684-ef75c29937a8
+		summarizeBy: none
+		sourceColumn: zone_code
+
+	column country_name
+		dataType: string
+		lineageTag: 19f3ce89-1e1f-4747-b1e0-0e65e05ceaa0
+		summarizeBy: none
+		sourceColumn: country_name
+
+	column country_iso2
+		dataType: string
+		lineageTag: 9e882a88-99c8-4e80-acd2-e8f1a01354a8
+		summarizeBy: none
+		sourceColumn: country_iso2
+
+	column region_name
+		dataType: string
+		lineageTag: 9ce40be3-e8ad-4c73-ac31-4557d2d879bc
+		summarizeBy: none
+		sourceColumn: region_name
+
+	column market_timezone
+		dataType: string
+		lineageTag: 5abc4083-dae3-447c-bab6-673d117bcd82
+		summarizeBy: none
+		sourceColumn: market_timezone
+
+	column latitude
+		dataType: double
+		lineageTag: 6bba3b3f-c7ac-4e67-a9ff-e254c6e6dca6
+		summarizeBy: none
+		sourceColumn: latitude
+
+	column longitude
+		dataType: double
+		lineageTag: 6280dd4b-e833-4fb1-9318-2684d7f1deb9
+		summarizeBy: none
+		sourceColumn: longitude
+
+	partition dim_bidding_zone = entity
+		mode: directLake
+		source
+			entityName: dim_bidding_zone
+			schemaName: gold
+			expressionSource: DatabaseQuery
+

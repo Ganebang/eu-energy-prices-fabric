@@ -1,0 +1,101 @@
+table fact_daily_battery
+	lineageTag: 83df8f6f-caae-4cc7-8136-37fd42727e24
+
+	/// Somme des gains journaliers (1 cycle / jour, prix de gros)
+	measure 'Gain d''arbitrage (€)' = SUM ( fact_daily_battery[arbitrage_gain_eur] )
+		formatString: #,0.00 €
+		displayFolder: 5. Batterie
+		lineageTag: 909eb30f-7def-4142-8307-8c695f7bc889
+
+	measure 'Gain moyen par jour (€)' = AVERAGEX ( VALUES ( fact_daily_battery[date_key] ), CALCULATE ( SUM ( fact_daily_battery[arbitrage_gain_eur] ) ) )
+		formatString: #,0.00 €
+		displayFolder: 5. Batterie
+		lineageTag: 624bad8c-68d7-4d05-8af0-78cd9245ee4b
+
+	/// Extrapolation sur 365 jours
+	measure 'Gain annualisé (€/an)' = [Gain moyen par jour (€)] * 365
+		formatString: #,0 €
+		displayFolder: 5. Batterie
+		lineageTag: 7ddbe6f3-5b4a-4889-a0e8-1c7c1dd6302e
+
+	measure 'Spread charge/décharge (c€/kWh)' = AVERAGE ( fact_daily_battery[avg_discharge_price_ct_kwh] ) - AVERAGE ( fact_daily_battery[avg_charge_price_ct_kwh] )
+		formatString: 0.00
+		displayFolder: 5. Batterie
+		lineageTag: d00c54a1-bb61-4d59-a5bc-1d5c9eab96f1
+
+	column zone_code
+		dataType: string
+		isHidden
+		lineageTag: 241edec7-8175-480d-a9f2-79746fe1a458
+		summarizeBy: none
+		sourceColumn: zone_code
+
+	column date_key
+		dataType: int64
+		isHidden
+		lineageTag: 97cd174e-be4f-4c11-ba57-13b08bb2dc13
+		summarizeBy: none
+		sourceColumn: date_key
+
+	column scenario_key
+		dataType: int64
+		isHidden
+		lineageTag: 7673e55d-c8e4-49ac-b3af-85aa24353607
+		summarizeBy: none
+		sourceColumn: scenario_key
+
+	column cycle_hours
+		dataType: int64
+		lineageTag: 7d5d8267-201a-45e9-ae2a-c82b5ff57b30
+		summarizeBy: none
+		sourceColumn: cycle_hours
+
+	column avg_charge_price_ct_kwh
+		dataType: decimal
+		lineageTag: 0f7cdc91-6ba0-4098-8889-201120034001
+		summarizeBy: none
+		sourceColumn: avg_charge_price_ct_kwh
+
+	column avg_discharge_price_ct_kwh
+		dataType: decimal
+		lineageTag: 3dcde09f-8148-492f-ba4c-9c0caeeb0deb
+		summarizeBy: none
+		sourceColumn: avg_discharge_price_ct_kwh
+
+	column energy_charged_kwh
+		dataType: decimal
+		lineageTag: a1d31acf-e915-4c0b-bf33-aa45d4db1186
+		summarizeBy: none
+		sourceColumn: energy_charged_kwh
+
+	column energy_delivered_kwh
+		dataType: decimal
+		lineageTag: ee6a62b5-c8d3-4aa6-a93e-6d6477b5b7f1
+		summarizeBy: none
+		sourceColumn: energy_delivered_kwh
+
+	column charge_cost_eur
+		dataType: decimal
+		lineageTag: 0048794c-de83-4a8e-a66e-0ad690898a40
+		summarizeBy: none
+		sourceColumn: charge_cost_eur
+
+	column discharge_value_eur
+		dataType: decimal
+		lineageTag: a5a65e02-5f0b-44ae-b488-461577520e17
+		summarizeBy: none
+		sourceColumn: discharge_value_eur
+
+	column arbitrage_gain_eur
+		dataType: decimal
+		lineageTag: 9931d50a-699d-4693-bb56-71d9182f675f
+		summarizeBy: none
+		sourceColumn: arbitrage_gain_eur
+
+	partition fact_daily_battery = entity
+		mode: directLake
+		source
+			entityName: fact_daily_battery
+			schemaName: gold
+			expressionSource: DatabaseQuery
+

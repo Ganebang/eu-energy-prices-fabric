@@ -1,0 +1,53 @@
+table dim_time_of_day
+	lineageTag: f61db984-c741-4edf-b004-0129e5502aff
+
+	column time_key
+		dataType: int64
+		isHidden
+		lineageTag: cc2579e1-8da4-4862-8a64-891b0d11fabe
+		summarizeBy: none
+		sourceColumn: time_key
+
+	column hour_of_day
+		dataType: int64
+		lineageTag: f0f3dfe9-8ee6-496f-9470-0b8d7518a122
+		summarizeBy: none
+		sourceColumn: hour_of_day
+
+	column quarter_of_hour
+		dataType: int64
+		lineageTag: b957ae38-b872-4940-8e97-f144c3790d45
+		summarizeBy: none
+		sourceColumn: quarter_of_hour
+
+	column time_label
+		dataType: string
+		lineageTag: 5d587f4d-8c6b-47e9-9322-52116b9aaf77
+		summarizeBy: none
+		sourceColumn: time_label
+
+	column hour_label
+		dataType: string
+		lineageTag: 5fc0b17b-3c67-452e-8c0d-60cadbf8f03f
+		summarizeBy: none
+		sourceColumn: hour_label
+
+	column day_period
+		dataType: string
+		lineageTag: 516d66e2-ed41-4a61-9218-1b21dec4e1c3
+		summarizeBy: none
+		sourceColumn: day_period
+
+	column is_peak_period
+		dataType: boolean
+		lineageTag: 2d4c657e-315c-4021-b128-66f5e1b1233d
+		summarizeBy: none
+		sourceColumn: is_peak_period
+
+	partition dim_time_of_day = entity
+		mode: directLake
+		source
+			entityName: dim_time_of_day
+			schemaName: gold
+			expressionSource: DatabaseQuery
+

@@ -1,0 +1,95 @@
+table fact_daily_price
+	lineageTag: eb410dc6-cc57-4219-ac5b-5333e7072c0a
+
+	/// Écart-type intra-journalier moyen
+	measure 'Volatilité moyenne (c€/kWh)' = AVERAGE ( fact_daily_price[stdev_price_ct_kwh] )
+		formatString: 0.00
+		displayFolder: 1. Prix
+		lineageTag: f84dc529-674d-41f1-b0a4-e45af69cbaf9
+
+	measure 'Jours fériés' = CALCULATE ( COUNTROWS ( fact_daily_price ), fact_daily_price[is_public_holiday] = TRUE () )
+		formatString: 0
+		displayFolder: 1. Prix
+		lineageTag: 6d363363-7983-4ba6-be29-90093cc187f3
+
+	column zone_code
+		dataType: string
+		isHidden
+		lineageTag: 7d917dbe-5d14-4545-a5c0-7e728e10ae48
+		summarizeBy: none
+		sourceColumn: zone_code
+
+	column date_key
+		dataType: int64
+		isHidden
+		lineageTag: 6a79677b-0565-41e0-b859-e3e0c3793953
+		summarizeBy: none
+		sourceColumn: date_key
+
+	column avg_price_ct_kwh
+		dataType: decimal
+		lineageTag: 8021e6fc-b4d5-40dd-ab24-00cabb3b8717
+		summarizeBy: none
+		sourceColumn: avg_price_ct_kwh
+
+	column min_price_ct_kwh
+		dataType: decimal
+		lineageTag: 8e44f75c-4144-436a-841b-440d6fe3e928
+		summarizeBy: none
+		sourceColumn: min_price_ct_kwh
+
+	column max_price_ct_kwh
+		dataType: decimal
+		lineageTag: 03f4e042-3414-4904-8fa4-d0b97057aea6
+		summarizeBy: none
+		sourceColumn: max_price_ct_kwh
+
+	column stdev_price_ct_kwh
+		dataType: decimal
+		lineageTag: 33d75f55-2bd3-4884-9f17-a91162f72fc2
+		summarizeBy: none
+		sourceColumn: stdev_price_ct_kwh
+
+	column peak_avg_price_ct_kwh
+		dataType: decimal
+		lineageTag: 5a9e8908-fc47-4bac-81b2-056144b43207
+		summarizeBy: none
+		sourceColumn: peak_avg_price_ct_kwh
+
+	column offpeak_avg_price_ct_kwh
+		dataType: decimal
+		lineageTag: 0c451019-6d65-4399-8f63-700f48dccc1a
+		summarizeBy: none
+		sourceColumn: offpeak_avg_price_ct_kwh
+
+	column negative_price_intervals
+		dataType: int64
+		lineageTag: 8e943649-b3dc-4c1b-a50c-5b2ae8b4a9a3
+		summarizeBy: none
+		sourceColumn: negative_price_intervals
+
+	column intervals_in_day
+		dataType: int64
+		lineageTag: 9a716855-d62f-4203-999a-0ae92d2277e8
+		summarizeBy: none
+		sourceColumn: intervals_in_day
+
+	column is_public_holiday
+		dataType: boolean
+		lineageTag: bcef6318-ef5d-4216-93e1-92e661b32f62
+		summarizeBy: none
+		sourceColumn: is_public_holiday
+
+	column holiday_name
+		dataType: string
+		lineageTag: bf71ffdd-bba3-4934-a898-efc2f79c200f
+		summarizeBy: none
+		sourceColumn: holiday_name
+
+	partition fact_daily_price = entity
+		mode: directLake
+		source
+			entityName: fact_daily_price
+			schemaName: gold
+			expressionSource: DatabaseQuery
+

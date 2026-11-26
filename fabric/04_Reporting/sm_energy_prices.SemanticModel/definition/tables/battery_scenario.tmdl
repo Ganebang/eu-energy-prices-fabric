@@ -1,0 +1,41 @@
+table battery_scenario
+	lineageTag: 921b30b5-ce1b-46d1-b110-8d7f7d595446
+
+	column scenario_key
+		dataType: int64
+		isHidden
+		lineageTag: 4e13e632-7be6-4332-b468-58d412400aeb
+		summarizeBy: none
+		sourceColumn: scenario_key
+
+	column scenario_name
+		dataType: string
+		lineageTag: f95f39ea-f055-425c-899f-7dad5e50c0bc
+		summarizeBy: none
+		sourceColumn: scenario_name
+
+	column capacity_kwh
+		dataType: decimal
+		lineageTag: b1f5bc63-72b1-4d6b-b403-1015ae441369
+		summarizeBy: none
+		sourceColumn: capacity_kwh
+
+	column power_kw
+		dataType: decimal
+		lineageTag: c41716d9-2d1f-4634-97c6-736b98be4dd1
+		summarizeBy: none
+		sourceColumn: power_kw
+
+	column roundtrip_efficiency
+		dataType: decimal
+		lineageTag: e6a1eebc-4beb-43f1-ab99-23e6f7676186
+		summarizeBy: none
+		sourceColumn: roundtrip_efficiency
+
+	partition battery_scenario = entity
+		mode: directLake
+		source
+			entityName: battery_scenario
+			schemaName: gold
+			expressionSource: DatabaseQuery
+

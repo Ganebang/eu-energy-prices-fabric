@@ -1,0 +1,94 @@
+table dim_date
+	lineageTag: 79b43bdc-7832-4025-a22e-996eeb0f2507
+	dataCategory: Time
+
+	column date_key
+		dataType: int64
+		isHidden
+		lineageTag: 03975b61-3f3a-4d03-9e09-fff0bc48ad07
+		summarizeBy: none
+		sourceColumn: date_key
+
+	column calendar_date
+		dataType: dateTime
+		isKey
+		lineageTag: a8985eef-6551-4930-9648-0c916e900820
+		summarizeBy: none
+		sourceColumn: calendar_date
+
+	column year_number
+		dataType: int64
+		lineageTag: 945e0196-0adb-4b46-b9e8-a2429fd74ff1
+		summarizeBy: none
+		sourceColumn: year_number
+
+	column quarter_number
+		dataType: int64
+		lineageTag: c0be2da6-2a5a-46a0-9d34-a479ceb1b1d6
+		summarizeBy: none
+		sourceColumn: quarter_number
+
+	column month_number
+		dataType: int64
+		lineageTag: cecccae1-8a67-44dd-ba69-0df1294030a1
+		summarizeBy: none
+		sourceColumn: month_number
+
+	column month_name
+		dataType: string
+		lineageTag: 028207f5-7596-453d-8543-1c29b5c896b5
+		summarizeBy: none
+		sourceColumn: month_name
+		sortByColumn: month_number
+
+	column month_short_name
+		dataType: string
+		lineageTag: 063bfe5d-72c3-4b4d-923c-8e324e34f10e
+		summarizeBy: none
+		sourceColumn: month_short_name
+		sortByColumn: month_number
+
+	column year_month
+		dataType: string
+		lineageTag: 9ec6b1bc-cf6b-46b0-8a60-e05abb0e8e6c
+		summarizeBy: none
+		sourceColumn: year_month
+
+	column iso_week_number
+		dataType: int64
+		lineageTag: ace2a26b-8f0b-4896-bbc6-0d98430082a9
+		summarizeBy: none
+		sourceColumn: iso_week_number
+
+	column day_of_month
+		dataType: int64
+		lineageTag: 9352a046-039d-452e-9393-a7275655d40b
+		summarizeBy: none
+		sourceColumn: day_of_month
+
+	column day_of_week_number
+		dataType: int64
+		lineageTag: d9bc31cb-25f2-4f32-8d05-36754b982a0f
+		summarizeBy: none
+		sourceColumn: day_of_week_number
+
+	column day_name
+		dataType: string
+		lineageTag: 682d5469-5556-4dc1-b802-4cd38ed717e6
+		summarizeBy: none
+		sourceColumn: day_name
+		sortByColumn: day_of_week_number
+
+	column is_weekend
+		dataType: boolean
+		lineageTag: 30c0a3f4-5cba-49a9-811e-b888b1687cf9
+		summarizeBy: none
+		sourceColumn: is_weekend
+
+	partition dim_date = entity
+		mode: directLake
+		source
+			entityName: dim_date
+			schemaName: gold
+			expressionSource: DatabaseQuery
+

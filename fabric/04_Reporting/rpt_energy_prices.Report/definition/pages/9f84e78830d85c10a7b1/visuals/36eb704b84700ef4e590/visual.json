@@ -1,0 +1,119 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
+  "name": "36eb704b84700ef4e590",
+  "position": {
+    "x": 910,
+    "y": 125,
+    "z": 1000,
+    "width": 350,
+    "height": 580,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_time_of_day"
+                    }
+                  },
+                  "Property": "hour_label"
+                }
+              },
+              "queryRef": "dim_time_of_day.hour_label",
+              "nativeQueryRef": "hour_label"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_price_interval"
+                    }
+                  },
+                  "Property": "consumption_advice"
+                }
+              },
+              "queryRef": "fact_price_interval.consumption_advice",
+              "nativeQueryRef": "consumption_advice"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_price_interval"
+                    }
+                  },
+                  "Property": "Prix moyen (c€/kWh)"
+                }
+              },
+              "queryRef": "fact_price_interval.Prix moyen (c€/kWh)",
+              "nativeQueryRef": "Prix moyen (c€/kWh)"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "dim_time_of_day"
+                  }
+                },
+                "Property": "hour_label"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "visualContainerObjects": {
+      "visualHeader": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Conseil heure par heure'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

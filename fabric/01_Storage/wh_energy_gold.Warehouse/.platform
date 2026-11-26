@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Warehouse",
+    "displayName": "wh_energy_gold",
+    "description": "Couche GOLD (T-SQL) : dimensions conformes, faits horaires et vues métier pour Power BI Direct Lake."
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "2ca5fcde-7fd2-8d65-46f6-8e5f5e4466fb"
+  }
+}

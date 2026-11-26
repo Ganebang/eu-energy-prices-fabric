@@ -1,0 +1,40 @@
+relationship Relationship
+	fromColumn: fact_price_interval.zone_code
+	toColumn: dim_bidding_zone.zone_code
+
+relationship 'Relationship 1'
+	fromColumn: fact_price_interval.date_key
+	toColumn: dim_date.date_key
+
+relationship 'Relationship 2'
+	fromColumn: fact_price_interval.time_key
+	toColumn: dim_time_of_day.time_key
+
+relationship 'Relationship 3'
+	fromColumn: fact_daily_price.zone_code
+	toColumn: dim_bidding_zone.zone_code
+
+relationship 'Relationship 4'
+	fromColumn: fact_daily_price.date_key
+	toColumn: dim_date.date_key
+
+relationship 'Relationship 5'
+	fromColumn: fact_hourly_energy.zone_code
+	toColumn: dim_bidding_zone.zone_code
+
+relationship 'Relationship 6'
+	fromColumn: fact_hourly_energy.date_key
+	toColumn: dim_date.date_key
+
+relationship 'Relationship 7'
+	fromColumn: fact_daily_battery.zone_code
+	toColumn: dim_bidding_zone.zone_code
+
+relationship 'Relationship 8'
+	fromColumn: fact_daily_battery.date_key
+	toColumn: dim_date.date_key
+
+relationship 'Relationship 9'
+	fromColumn: fact_daily_battery.scenario_key
+	toColumn: battery_scenario.scenario_key
+
