@@ -42,11 +42,11 @@
                       "Entity": "fact_price_interval"
                     }
                   },
-                  "Property": "Prix moyen (c€/kWh)"
+                  "Property": "Prix du jour (c€/kWh)"
                 }
               },
-              "queryRef": "fact_price_interval.Prix moyen (c€/kWh)",
-              "nativeQueryRef": "Prix moyen (c€/kWh)",
+              "queryRef": "fact_price_interval.Prix du jour (c€/kWh)",
+              "nativeQueryRef": "Prix du jour (c€/kWh)",
               "displayName": "Prix (c€/kWh)"
             }
           ]

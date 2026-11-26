@@ -2,10 +2,10 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
   "name": "zone_kpi_min",
   "position": {
-    "x": 376,
+    "x": 525,
     "y": 66,
     "z": 1000,
-    "width": 169,
+    "width": 139,
     "height": 86,
     "tabOrder": 1000
   },
@@ -23,11 +23,11 @@
                       "Entity": "fact_price_interval"
                     }
                   },
-                  "Property": "Prix min (c€/kWh)"
+                  "Property": "Prix min du jour (c€/kWh)"
                 }
               },
-              "queryRef": "fact_price_interval.Prix min (c€/kWh)",
-              "nativeQueryRef": "Prix min (c€/kWh)"
+              "queryRef": "fact_price_interval.Prix min du jour (c€/kWh)",
+              "nativeQueryRef": "Prix min du jour (c€/kWh)"
             }
           ]
         }

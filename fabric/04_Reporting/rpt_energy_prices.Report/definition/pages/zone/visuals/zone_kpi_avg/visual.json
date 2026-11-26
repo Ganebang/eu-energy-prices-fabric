@@ -2,10 +2,10 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
   "name": "zone_kpi_avg",
   "position": {
-    "x": 555,
+    "x": 674,
     "y": 66,
     "z": 1000,
-    "width": 169,
+    "width": 139,
     "height": 86,
     "tabOrder": 1000
   },
@@ -23,11 +23,11 @@
                       "Entity": "fact_price_interval"
                     }
                   },
-                  "Property": "Prix moyen (c€/kWh)"
+                  "Property": "Prix du jour (c€/kWh)"
                 }
               },
-              "queryRef": "fact_price_interval.Prix moyen (c€/kWh)",
-              "nativeQueryRef": "Prix moyen (c€/kWh)"
+              "queryRef": "fact_price_interval.Prix du jour (c€/kWh)",
+              "nativeQueryRef": "Prix du jour (c€/kWh)"
             }
           ]
         }

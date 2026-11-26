@@ -70,34 +70,103 @@ table fact_price_interval
 		displayFolder: 1. Prix
 		lineageTag: 6f0c1f0e-3a52-4c55-9a5e-2d7c9b1e4a01
 
-	/// Heure de début de l'intervalle le moins cher. Calculée pour une seule zone et un seul jour, sinon "–".
+	/// Prix moyen du jour sélectionné, ou du dernier jour publié si aucun jour n'est sélectionné
+	measure 'Prix du jour (c€/kWh)' = ```
+			VAR day_key =
+			    IF (
+			        HASONEVALUE ( dim_date[date_key] ),
+			        VALUES ( dim_date[date_key] ),
+			        CALCULATE ( MAX ( fact_price_interval[date_key] ), ALLEXCEPT ( fact_price_interval, dim_bidding_zone[zone_code] ) )
+			    )
+			RETURN
+			    CALCULATE ( AVERAGE ( fact_price_interval[price_ct_kwh] ), REMOVEFILTERS ( dim_date ), dim_date[date_key] = day_key )
+			```
+		formatString: 0.00
+		displayFolder: 2. Conseil
+		lineageTag: 2c6a1f3e-8d41-4b7a-9e55-0f3c2a7d1b01
+
+	/// Prix minimum du jour sélectionné, ou du dernier jour publié
+	measure 'Prix min du jour (c€/kWh)' = ```
+			VAR day_key =
+			    IF (
+			        HASONEVALUE ( dim_date[date_key] ),
+			        VALUES ( dim_date[date_key] ),
+			        CALCULATE ( MAX ( fact_price_interval[date_key] ), ALLEXCEPT ( fact_price_interval, dim_bidding_zone[zone_code] ) )
+			    )
+			RETURN
+			    CALCULATE ( MIN ( fact_price_interval[price_ct_kwh] ), REMOVEFILTERS ( dim_date ), dim_date[date_key] = day_key )
+			```
+		formatString: 0.00
+		displayFolder: 2. Conseil
+		lineageTag: 2c6a1f3e-8d41-4b7a-9e55-0f3c2a7d1b02
+
+	/// Prix maximum du jour sélectionné, ou du dernier jour publié
+	measure 'Prix max du jour (c€/kWh)' = ```
+			VAR day_key =
+			    IF (
+			        HASONEVALUE ( dim_date[date_key] ),
+			        VALUES ( dim_date[date_key] ),
+			        CALCULATE ( MAX ( fact_price_interval[date_key] ), ALLEXCEPT ( fact_price_interval, dim_bidding_zone[zone_code] ) )
+			    )
+			RETURN
+			    CALCULATE ( MAX ( fact_price_interval[price_ct_kwh] ), REMOVEFILTERS ( dim_date ), dim_date[date_key] = day_key )
+			```
+		formatString: 0.00
+		displayFolder: 2. Conseil
+		lineageTag: 2c6a1f3e-8d41-4b7a-9e55-0f3c2a7d1b03
+
+	/// Jour utilisé par les mesures du jour
+	measure 'Jour affiché' = ```
+			VAR day_key =
+			    IF (
+			        HASONEVALUE ( dim_date[date_key] ),
+			        VALUES ( dim_date[date_key] ),
+			        CALCULATE ( MAX ( fact_price_interval[date_key] ), ALLEXCEPT ( fact_price_interval, dim_bidding_zone[zone_code] ) )
+			    )
+			RETURN
+			    FORMAT ( DATE ( INT ( day_key / 10000 ), MOD ( INT ( day_key / 100 ), 100 ), MOD ( day_key, 100 ) ), "dd/MM/yyyy" )
+			```
+		displayFolder: 2. Conseil
+		lineageTag: 2c6a1f3e-8d41-4b7a-9e55-0f3c2a7d1b04
+
+	/// Heure de début de l'intervalle le moins cher du jour affiché, pour une seule zone
 	measure 'Créneau le moins cher' = ```
-			IF (
-			    HASONEVALUE ( dim_bidding_zone[zone_code] ) && HASONEVALUE ( dim_date[calendar_date] ),
-			    VAR min_price = MIN ( fact_price_interval[price_ct_kwh] )
-			    RETURN
-			        MINX (
-			            FILTER ( fact_price_interval, fact_price_interval[price_ct_kwh] = min_price ),
-			            RELATED ( dim_time_of_day[time_label] )
-			        ),
-			    "–"
-			)
+			VAR day_key =
+			    IF (
+			        HASONEVALUE ( dim_date[date_key] ),
+			        VALUES ( dim_date[date_key] ),
+			        CALCULATE ( MAX ( fact_price_interval[date_key] ), ALLEXCEPT ( fact_price_interval, dim_bidding_zone[zone_code] ) )
+			    )
+			VAR day_rows =
+			    CALCULATETABLE ( fact_price_interval, REMOVEFILTERS ( dim_date ), dim_date[date_key] = day_key )
+			VAR target_price = MINX ( day_rows, fact_price_interval[price_ct_kwh] )
+			RETURN
+			    IF (
+			        HASONEVALUE ( dim_bidding_zone[zone_code] ),
+			        MINX ( FILTER ( day_rows, fact_price_interval[price_ct_kwh] = target_price ), RELATED ( dim_time_of_day[time_label] ) ),
+			        "–"
+			    )
 			```
 		displayFolder: 2. Conseil
 		lineageTag: 8deb6407-228f-4462-9b1f-1adfdcea70da
 
-	/// Heure de début de l'intervalle le plus cher. Calculée pour une seule zone et un seul jour, sinon "–".
+	/// Heure de début de l'intervalle le plus cher du jour affiché, pour une seule zone
 	measure 'Créneau le plus cher' = ```
-			IF (
-			    HASONEVALUE ( dim_bidding_zone[zone_code] ) && HASONEVALUE ( dim_date[calendar_date] ),
-			    VAR max_price = MAX ( fact_price_interval[price_ct_kwh] )
-			    RETURN
-			        MINX (
-			            FILTER ( fact_price_interval, fact_price_interval[price_ct_kwh] = max_price ),
-			            RELATED ( dim_time_of_day[time_label] )
-			        ),
-			    "–"
-			)
+			VAR day_key =
+			    IF (
+			        HASONEVALUE ( dim_date[date_key] ),
+			        VALUES ( dim_date[date_key] ),
+			        CALCULATE ( MAX ( fact_price_interval[date_key] ), ALLEXCEPT ( fact_price_interval, dim_bidding_zone[zone_code] ) )
+			    )
+			VAR day_rows =
+			    CALCULATETABLE ( fact_price_interval, REMOVEFILTERS ( dim_date ), dim_date[date_key] = day_key )
+			VAR target_price = MAXX ( day_rows, fact_price_interval[price_ct_kwh] )
+			RETURN
+			    IF (
+			        HASONEVALUE ( dim_bidding_zone[zone_code] ),
+			        MINX ( FILTER ( day_rows, fact_price_interval[price_ct_kwh] = target_price ), RELATED ( dim_time_of_day[time_label] ) ),
+			        "–"
+			    )
 			```
 		displayFolder: 2. Conseil
 		lineageTag: 15eb09c0-69ad-4409-9be8-31effcc3c42b
@@ -106,6 +175,11 @@ table fact_price_interval
 	measure 'Prix disponibles jusqu''au' = FORMAT ( MAX ( fact_price_interval[interval_start_local] ), "dd/MM/yyyy HH:mm" )
 		displayFolder: 9. Technique
 		lineageTag: 11d5eecc-b185-4426-98a8-a669e2cba2d4
+
+	/// Libellé de fraîcheur affiché dans l'en-tête du rapport
+	measure 'Libellé mise à jour' = "Prix disponibles jusqu'au " & [Prix disponibles jusqu'au]
+		displayFolder: 9. Technique
+		lineageTag: 2c6a1f3e-8d41-4b7a-9e55-0f3c2a7d1b05
 
 	column zone_code
 		dataType: string

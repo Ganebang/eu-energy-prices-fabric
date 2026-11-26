@@ -31,7 +31,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "Prix par quart d'heure pour une zone et un jour, avec le conseil associé à chaque créneau",
+                    "value": "Prix par quart d'heure et conseil associé. Sans jour choisi, le dernier jour publié est affiché",
                     "textStyle": {
                       "fontFamily": "Segoe UI",
                       "fontSize": "10pt",

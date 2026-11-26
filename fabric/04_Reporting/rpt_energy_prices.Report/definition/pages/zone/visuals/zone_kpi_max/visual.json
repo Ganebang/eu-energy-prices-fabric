@@ -2,10 +2,10 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
   "name": "zone_kpi_max",
   "position": {
-    "x": 734,
+    "x": 823,
     "y": 66,
     "z": 1000,
-    "width": 169,
+    "width": 139,
     "height": 86,
     "tabOrder": 1000
   },
@@ -23,11 +23,11 @@
                       "Entity": "fact_price_interval"
                     }
                   },
-                  "Property": "Prix max (c€/kWh)"
+                  "Property": "Prix max du jour (c€/kWh)"
                 }
               },
-              "queryRef": "fact_price_interval.Prix max (c€/kWh)",
-              "nativeQueryRef": "Prix max (c€/kWh)"
+              "queryRef": "fact_price_interval.Prix max du jour (c€/kWh)",
+              "nativeQueryRef": "Prix max du jour (c€/kWh)"
             }
           ]
         }

@@ -2,10 +2,10 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
   "name": "zone_kpi_worst",
   "position": {
-    "x": 1092,
+    "x": 1121,
     "y": 66,
     "z": 1000,
-    "width": 169,
+    "width": 139,
     "height": 86,
     "tabOrder": 1000
   },
