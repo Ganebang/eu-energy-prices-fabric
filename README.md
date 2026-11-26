@@ -9,6 +9,21 @@ Le rapport répond à quatre questions :
 3. Combien rapporterait une batterie domestique chargée aux heures creuses et déchargée aux heures de pointe ?
 4. Dans quelle mesure le vent, le soleil et la demande expliquent-ils le prix ?
 
+![Rapport Power BI, page Europe](docs/images/report-europe.png)
+
+## Rapport
+
+Rapport Power BI en Direct Lake, quatre pages :
+
+| Page | Contenu |
+|---|---|
+| Europe — vue d'ensemble | prix moyen, médian, prime de pointe, heures à prix négatif, évolution mensuelle et classement par pays |
+| Ma zone — profil d'une journée | prix au quart d'heure d'une zone, créneaux le moins et le plus cher, conseil de consommation ; affiche le dernier jour publié par défaut |
+| Batterie — gain d'arbitrage | gain simulé d'une batterie domestique par mois, par zone et par scénario |
+| Pourquoi ce prix ? | profil horaire solaire, éolien et prix, corrélations du prix avec le vent, l'ensoleillement et la part renouvelable |
+
+![Rapport Power BI, page Ma zone](docs/images/report-zone.png)
+
 ## Architecture
 
 ```mermaid
