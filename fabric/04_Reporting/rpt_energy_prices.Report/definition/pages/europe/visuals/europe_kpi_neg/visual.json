@@ -1,0 +1,60 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
+  "name": "europe_kpi_neg",
+  "position": {
+    "x": 965,
+    "y": 66,
+    "z": 1000,
+    "width": 143,
+    "height": 86,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_price_interval"
+                    }
+                  },
+                  "Property": "Heures à prix négatif par zone"
+                }
+              },
+              "queryRef": "fact_price_interval.Heures à prix négatif par zone",
+              "nativeQueryRef": "Heures à prix négatif par zone"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Heures à prix négatif / zone'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

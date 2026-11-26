@@ -7,7 +7,7 @@ from urllib3.util.retry import Retry
 
 LOGGER = logging.getLogger("energy_toolkit.http")
 DEFAULT_TIMEOUT_SECONDS = 60
-USER_AGENT = "eu-energy-prices-fabric/1.0 (+Microsoft Fabric tutorial)"
+USER_AGENT = "eu-energy-prices-fabric/1.0.1 (+https://github.com/Ganebang/eu-energy-prices-fabric)"
 
 
 def build_session(total_retries: int = 5, backoff_factor: float = 1.5) -> requests.Session:

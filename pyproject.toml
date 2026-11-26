@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "energy_toolkit"
-version = "1.0.0"
+version = "1.0.1"
 description = "Shared helpers for the EU-Energy-Prices Fabric project: API clients, date windows, Delta helpers."
 requires-python = ">=3.10"
 dependencies = ["requests>=2.31"]

@@ -1,0 +1,60 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
+  "name": "battery_kpi_spread",
+  "position": {
+    "x": 1004,
+    "y": 66,
+    "z": 1000,
+    "width": 259,
+    "height": 86,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_daily_battery"
+                    }
+                  },
+                  "Property": "Spread charge/décharge (c€/kWh)"
+                }
+              },
+              "queryRef": "fact_daily_battery.Spread charge/décharge (c€/kWh)",
+              "nativeQueryRef": "Spread charge/décharge (c€/kWh)"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Écart charge / décharge (c€/kWh)'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

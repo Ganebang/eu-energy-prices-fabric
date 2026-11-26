@@ -1,6 +1,5 @@
 /* =====================================================================
-   wh_energy_gold - 02 : procédure de chargement de la couche GOLD
-   Remplace les modèles dbt du tutoriel d'origine par du T-SQL natif :
+   gold.usp_refresh_gold : chargement de la couche GOLD
    - lecture inter-bases (3 parties) depuis le SQL endpoint du Lakehouse :
        [lh_energy].[silver].[table]  -- même workspace, sans copie ;
    - fenêtre glissante (@lookback_days) : DELETE + INSERT idempotent ;

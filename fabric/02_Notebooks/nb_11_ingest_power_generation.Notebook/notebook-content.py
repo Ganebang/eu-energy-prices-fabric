@@ -21,12 +21,21 @@
 
 # MARKDOWN ********************
 
-# # nb_11_ingest_power_generation  *(enrichissement)*
-# **Rôle** : ingérer la production électrique publique par filière (solaire, éolien, nucléaire, gaz…) et la charge
-# du pays associé à la zone de marché. Source : `api.energy-charts.info/public_power` (Fraunhofer ISE, CC BY 4.0).
+# # nb_11_ingest_power_generation
 # 
-# **Pourquoi ?** Le prix day-ahead est fixé par l'équilibre offre/demande : beaucoup de solaire à midi ou de vent
-# la nuit ⇒ prix bas, voire négatifs. Croiser prix et production explique les variations observées.
+# Ingestion de la production électrique publique par filière et de la consommation du pays rattaché à la zone de marché.
+# 
+# | | |
+# |---|---|
+# | Couche | Bronze → Silver |
+# | Source | `api.energy-charts.info/public_power` (Fraunhofer ISE, licence CC BY 4.0) |
+# | Écrit | `Files/bronze/energy_charts/public_power/`, `bronze.power_generation_raw`, `silver.power_generation`, `ops.ingestion_log` |
+# | Déclenchement | `pl_energy_daily`, après `nb_10` pour chaque zone |
+# | Ré-exécutable | oui, `MERGE` sur (`country_code`, `interval_start_utc`, `production_type`) |
+# 
+# Paramètres : `zone_code`, `start_date`, `end_date`, `pipeline_run_id`. La fenêtre par défaut va de J-2 à aujourd'hui, la production n'étant publiée qu'au fil de l'eau.
+# 
+# Ces données servent à expliquer les prix : la production solaire et éolienne pèse directement sur le prix de chaque heure.
 
 # PARAMETERS CELL ********************
 
@@ -79,7 +88,9 @@ print(f"Country {country_code} (zone {zone.zone_code}) | window {window_start} -
 
 # MARKDOWN ********************
 
-# ## 1. Extract + landing du JSON brut
+# ## 1. Extraction
+# 
+# Appels par tranches de 14 jours, dépôt du JSON brut dans `Files/bronze`.
 
 # CELL ********************
 
@@ -151,9 +162,9 @@ bronze_generation_df.write.mode("append").saveAsTable("bronze.power_generation_r
 
 # MARKDOWN ********************
 
-# ## 3. Silver — catégorisation des filières
-# La catégorie est calculée par une expression Spark (`when/otherwise`) : pas d'UDF Python, donc pas de
-# sérialisation ligne à ligne entre la JVM et Python.
+# ## 3. Silver
+# 
+# Chaque filière est rangée dans une catégorie (`Renewable`, `Nuclear`, `Fossil`, `Storage`, `Load`, `Indicator`, `Other`) par une expression `when/otherwise`. Les séries exprimées en pourcentage (parts de production) reçoivent l'unité `%`, les autres `MW`.
 
 # CELL ********************
 

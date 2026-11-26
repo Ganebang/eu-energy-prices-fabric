@@ -22,18 +22,25 @@
 # MARKDOWN ********************
 
 # # nb_00_setup_lakehouse
-# **Rôle** : créer (de façon idempotente) les schémas et tables Delta du Lakehouse `lh_energy`.
 # 
-# | Schéma | Contenu | Règle |
+# Création des schémas et des tables Delta du lakehouse `lh_energy`.
+# 
+# | | |
+# |---|---|
+# | Couche | Bronze, Silver, Ops |
+# | Écrit | schémas `bronze`, `silver`, `ops` et leurs tables |
+# | Déclenchement | manuel, une fois par environnement |
+# | Ré-exécutable | oui, toutes les instructions utilisent `IF NOT EXISTS` |
+# 
+# Organisation du lakehouse :
+# 
+# | Schéma | Contenu | Mode d'écriture |
 # |---|---|---|
-# | `bronze` | données **telles que reçues** de l'API (+ métadonnées d'ingestion) | append-only, jamais modifié |
-# | `silver` | données **nettoyées, typées, dédupliquées**, une ligne = une clé métier | `MERGE` idempotent |
-# | `ops` | journal d'exécution et contrôles qualité | append-only |
+# | `bronze` | données telles que renvoyées par les API, avec les métadonnées d'ingestion | ajout seul |
+# | `silver` | données typées et dédoublonnées, une ligne par clé métier | `MERGE` |
+# | `ops` | journal d'exécution et résultats des contrôles qualité | ajout seul |
 # 
-# Les DDL explicites (plutôt que `saveAsTable` qui infère le schéma) garantissent un **contrat de données** stable :
-# types, commentaires et propriétés Delta sont versionnés avec le code.
-# 
-# > À exécuter une seule fois par environnement (DEV / PROD). Ré-exécutable sans risque : `IF NOT EXISTS` partout.
+# Les tables sont déclarées en DDL plutôt que créées par `saveAsTable` : les types, les commentaires de colonnes et les propriétés Delta sont ainsi fixés dans le code et versionnés. Les propriétés communes activent l'optimisation à l'écriture, le Change Data Feed et le V-Order.
 
 # CELL ********************
 
@@ -62,7 +69,9 @@ spark.sql("SHOW SCHEMAS").show()
 
 # MARKDOWN ********************
 
-# ## Bronze — données brutes
+# ## Bronze
+# 
+# Une table par source. Chaque ligne garde le chemin du fichier JSON d'origine (`source_file`) et l'identifiant d'exécution du pipeline (`pipeline_run_id`).
 
 # CELL ********************
 
@@ -119,7 +128,9 @@ COMMENT 'Hourly weather (Open-Meteo) at a representative point of each bidding z
 
 # MARKDOWN ********************
 
-# ## Silver — données conformes
+# ## Silver
+# 
+# Tables conformes, alimentées par `MERGE` depuis le bronze, ainsi que les tables de référence (zones, calendrier, jours fériés) chargées par `nb_01_load_reference_data`.
 
 # CELL ********************
 
@@ -225,7 +236,9 @@ COMMENT 'Public holidays per country (python-holidays library)'
 
 # MARKDOWN ********************
 
-# ## Ops — observabilité
+# ## Ops
+# 
+# `ops.ingestion_log` reçoit une ligne par notebook et par entité chargée. `ops.data_quality_result` historise les contrôles exécutés par `nb_20_data_quality`.
 
 # CELL ********************
 

@@ -21,18 +21,26 @@
 
 # MARKDOWN ********************
 
-# # nb_12_ingest_weather  *(enrichissement)*
-# **Rôle** : ingérer la météo horaire (observée **et prévue**) au point représentatif de la zone de marché.
-# Source : Open-Meteo (CC BY 4.0, sans clé).
+# # nb_12_ingest_weather
 # 
-# | Variable | Impact sur le prix |
+# Ingestion de la météo horaire, observée et prévue, au point représentatif de chaque zone de marché.
+# 
+# | | |
 # |---|---|
-# | `shortwave_radiation_wm2` | production solaire ⇒ creux de prix à midi |
-# | `wind_speed_100m_kmh` | vent à hauteur de nacelle ⇒ production éolienne |
-# | `temperature_2m_c` | chauffage / climatisation ⇒ demande |
-# | `cloud_cover_pct` | nébulosité ⇒ solaire |
+# | Couche | Bronze → Silver |
+# | Source | Open-Meteo, API forecast (licence CC BY 4.0, sans clé) |
+# | Écrit | `Files/bronze/open_meteo/weather_hourly/`, `bronze.weather_hourly_raw`, `silver.weather_hourly`, `ops.ingestion_log` |
+# | Déclenchement | `pl_energy_daily`, après `nb_11` pour chaque zone |
+# | Ré-exécutable | oui, `MERGE` sur (`zone_code`, `interval_start_utc`) |
 # 
-# Les **prévisions** (`is_forecast = true`) sont la base d'un futur modèle de prévision de prix (piste ML).
+# Paramètres : `zone_code`, `past_days`, `forecast_days`, `pipeline_run_id`.
+# 
+# | Variable | Lien avec le prix |
+# |---|---|
+# | `shortwave_radiation_wm2` | production solaire, creux de prix en milieu de journée |
+# | `wind_speed_100m_kmh` | vent à hauteur de nacelle, production éolienne |
+# | `temperature_2m_c` | chauffage et climatisation, donc demande |
+# | `cloud_cover_pct` | nébulosité, production solaire |
 
 # PARAMETERS CELL ********************
 
@@ -124,7 +132,9 @@ bronze_weather_df.write.mode("append").saveAsTable("bronze.weather_hourly_raw")
 
 # MARKDOWN ********************
 
-# ## Silver : une prévision est remplacée par l'observation dès qu'elle devient disponible (MERGE)
+# ## Silver
+# 
+# Les heures futures sont marquées `is_forecast = true`. À chaque exécution, le `MERGE` remplace une prévision par la valeur observée dès qu'elle est disponible.
 
 # CELL ********************
 

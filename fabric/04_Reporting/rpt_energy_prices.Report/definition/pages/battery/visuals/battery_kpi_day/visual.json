@@ -1,0 +1,60 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
+  "name": "battery_kpi_day",
+  "position": {
+    "x": 735,
+    "y": 66,
+    "z": 1000,
+    "width": 259,
+    "height": 86,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_daily_battery"
+                    }
+                  },
+                  "Property": "Gain moyen par jour (€)"
+                }
+              },
+              "queryRef": "fact_daily_battery.Gain moyen par jour (€)",
+              "nativeQueryRef": "Gain moyen par jour (€)"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Gain moyen par jour (€)'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

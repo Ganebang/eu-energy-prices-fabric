@@ -22,17 +22,25 @@
 # MARKDOWN ********************
 
 # # nb_20_data_quality
-# **Rôle** : contrôler la qualité de la couche silver **avant** de publier la couche gold.
+# 
+# Contrôles qualité de la couche silver, exécutés avant la mise à jour de la couche gold.
+# 
+# | | |
+# |---|---|
+# | Lit | `silver.day_ahead_price`, `silver.weather_hourly`, `silver.dim_bidding_zone` |
+# | Écrit | `ops.data_quality_result` |
+# | Déclenchement | `pl_energy_daily`, après les ingestions |
 # 
 # | Contrôle | Sévérité | Règle |
 # |---|---|---|
-# | `price_completeness` | ERROR | nombre d'intervalles du jour = durée du jour local / résolution (gère 23 h / 25 h aux changements d'heure) |
-# | `price_within_market_limits` | ERROR | prix entre −500 et +4 000 €/MWh (bornes harmonisées SDAC) |
-# | `next_day_published` | WARNING | après 14h00 CET, les prix de J+1 doivent être présents |
-# | `weather_not_null` | WARNING | pas de valeur météo manquante |
+# | `price_completeness` | ERROR | nombre d'intervalles reçus = durée du jour local / résolution (journées de 23 h et 25 h incluses) |
+# | `price_within_market_limits` | ERROR | prix compris entre -500 et 4 000 €/MWh (bornes harmonisées SDAC) |
+# | `next_day_published` | WARNING | après 14h00 (Paris), les prix de J+1 sont présents |
+# | `weather_not_null` | WARNING | aucune valeur météo manquante |
 # 
-# Les résultats sont historisés dans `ops.data_quality_result`. Une erreur bloquante fait échouer le notebook,
-# donc l'activité du pipeline, donc la procédure gold ne s'exécute pas : **on ne publie jamais de données fausses**.
+# Paramètres : `lookback_days` (fenêtre contrôlée), `fail_on_error`, `pipeline_run_id`.
+# 
+# Un contrôle de sévérité ERROR en échec fait échouer le notebook. L'activité du pipeline échoue alors et la procédure `gold.usp_refresh_gold` n'est pas lancée : le rapport conserve les dernières données validées.
 
 # PARAMETERS CELL ********************
 
@@ -73,7 +81,9 @@ recent_prices_df = (
 
 # MARKDOWN ********************
 
-# ## 1. Complétude : intervalles attendus vs reçus par zone et par jour
+# ## 1. Complétude des prix
+# 
+# Nombre d'intervalles attendus et reçus par zone et par jour de livraison.
 
 # CELL ********************
 
@@ -142,7 +152,9 @@ limits_df = (
 
 # MARKDOWN ********************
 
-# ## 3. Fraîcheur : prix du lendemain publiés ?
+# ## 3. Publication des prix du lendemain
+# 
+# Contrôle limité aux zones effectivement chargées, et considéré comme réussi avant 14h00.
 
 # CELL ********************
 
@@ -176,7 +188,7 @@ tomorrow_df = (
 
 # MARKDOWN ********************
 
-# ## 4. Météo complète
+# ## 4. Complétude de la météo
 
 # CELL ********************
 
@@ -230,11 +242,9 @@ print(f"Checks: {quality_results_df.count()} | blocking failures: {blocking_fail
 
 # MARKDOWN ********************
 
-# ## 5. Synchroniser le SQL analytics endpoint avant la couche gold
-# Le Warehouse lit `lh_energy.silver.*` **via le SQL analytics endpoint** du Lakehouse, dont les métadonnées sont
-# synchronisées de façon asynchrone avec les commits Delta. Sans synchronisation explicite, la procédure gold peut
-# lire une version antérieure des tables (cas réellement rencontré : les 2 dernières zones chargées manquaient).
-# L'API `refreshMetadata` force cette synchronisation et rend la chaîne déterministe.
+# ## 5. Synchronisation du SQL analytics endpoint
+# 
+# La procédure gold lit `lh_energy.silver.*` à travers le SQL analytics endpoint du lakehouse. Ses métadonnées sont synchronisées de manière asynchrone après les commits Delta, et sans synchronisation explicite la procédure peut lire une version antérieure des tables (constaté en exécution : les deux dernières zones chargées manquaient en gold). L'appel `refreshMetadata` force la synchronisation avant de passer la main au pipeline.
 
 # CELL ********************
 

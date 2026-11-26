@@ -22,11 +22,19 @@
 # MARKDOWN ********************
 
 # # nb_90_maintenance_delta
-# **Rôle** : maintenance hebdomadaire des tables Delta du Lakehouse.
-# * `OPTIMIZE ... VORDER` : compacte les petits fichiers produits par les `MERGE` quotidiens et applique
-#   l'ordonnancement V-Order (lecture plus rapide pour le SQL endpoint et Power BI Direct Lake) ;
-# * `VACUUM` : supprime les fichiers Parquet qui ne sont plus référencés au-delà de la rétention (7 jours par défaut,
-#   ce qui préserve le *time travel* d'une semaine).
+# 
+# Maintenance des tables Delta du lakehouse.
+# 
+# | | |
+# |---|---|
+# | Tables | toutes les tables des schémas listés dans `schemas_to_maintain` |
+# | Déclenchement | manuel ou planification hebdomadaire |
+# 
+# Paramètres :
+# - `retention_hours` : rétention appliquée par `VACUUM` (168 h, soit 7 jours de time travel) ;
+# - `schemas_to_maintain` : liste de schémas séparés par des virgules.
+# 
+# `OPTIMIZE ... VORDER` regroupe les petits fichiers produits par les `MERGE` successifs et réapplique le V-Order, utilisé par le SQL endpoint et par Direct Lake. `VACUUM` supprime ensuite les fichiers Parquet qui ne sont plus référencés au-delà de la rétention.
 
 # PARAMETERS CELL ********************
 
@@ -42,17 +50,17 @@ schemas_to_maintain = "bronze,silver,ops"
 
 # CELL ********************
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 maintenance_report = []
 for schema_name in [s.strip() for s in schemas_to_maintain.split(",") if s.strip()]:
     for table_row in spark.sql(f"SHOW TABLES IN {schema_name}").collect():
         full_table_name = f"{schema_name}.{table_row.tableName}"
-        started = datetime.utcnow()
+        started = datetime.now(timezone.utc)
         spark.sql(f"OPTIMIZE {full_table_name} VORDER")
         spark.sql(f"VACUUM {full_table_name} RETAIN {int(retention_hours)} HOURS")
         file_count = spark.sql(f"DESCRIBE DETAIL {full_table_name}").collect()[0]["numFiles"]
-        maintenance_report.append((full_table_name, file_count, (datetime.utcnow() - started).seconds))
+        maintenance_report.append((full_table_name, file_count, int((datetime.now(timezone.utc) - started).total_seconds())))
         print(f"{full_table_name:45s} files={file_count:5d}  {maintenance_report[-1][2]}s")
 
 display(spark.createDataFrame(maintenance_report, "table_name STRING, files_after BIGINT, duration_seconds INT"))

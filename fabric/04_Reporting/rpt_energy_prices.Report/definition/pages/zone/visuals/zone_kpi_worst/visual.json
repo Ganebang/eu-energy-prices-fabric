@@ -1,0 +1,60 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
+  "name": "zone_kpi_worst",
+  "position": {
+    "x": 1092,
+    "y": 66,
+    "z": 1000,
+    "width": 169,
+    "height": 86,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_price_interval"
+                    }
+                  },
+                  "Property": "Créneau le plus cher"
+                }
+              },
+              "queryRef": "fact_price_interval.Créneau le plus cher",
+              "nativeQueryRef": "Créneau le plus cher"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Créneau le plus cher'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

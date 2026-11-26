@@ -1,18 +1,24 @@
 table fact_daily_battery
 	lineageTag: 83df8f6f-caae-4cc7-8136-37fd42727e24
 
-	/// Somme des gains journaliers (1 cycle / jour, prix de gros)
-	measure 'Gain d''arbitrage (€)' = SUM ( fact_daily_battery[arbitrage_gain_eur] )
+	/// Gain cumulé d'une batterie (1 cycle par jour, prix de gros), moyenne des zones et scénarios sélectionnés
+	measure 'Gain d''arbitrage (€)' = ```
+			AVERAGEX (
+			    SUMMARIZE ( fact_daily_battery, fact_daily_battery[zone_code], fact_daily_battery[scenario_key] ),
+			    CALCULATE ( SUM ( fact_daily_battery[arbitrage_gain_eur] ) )
+			)
+			```
 		formatString: #,0.00 €
 		displayFolder: 5. Batterie
 		lineageTag: 909eb30f-7def-4142-8307-8c695f7bc889
 
-	measure 'Gain moyen par jour (€)' = AVERAGEX ( VALUES ( fact_daily_battery[date_key] ), CALCULATE ( SUM ( fact_daily_battery[arbitrage_gain_eur] ) ) )
+	/// Gain moyen d'une batterie sur une journée, toutes zones et scénarios sélectionnés confondus
+	measure 'Gain moyen par jour (€)' = AVERAGE ( fact_daily_battery[arbitrage_gain_eur] )
 		formatString: #,0.00 €
 		displayFolder: 5. Batterie
 		lineageTag: 624bad8c-68d7-4d05-8af0-78cd9245ee4b
 
-	/// Extrapolation sur 365 jours
+	/// Gain moyen par jour extrapolé sur 365 jours
 	measure 'Gain annualisé (€/an)' = [Gain moyen par jour (€)] * 365
 		formatString: #,0 €
 		displayFolder: 5. Batterie

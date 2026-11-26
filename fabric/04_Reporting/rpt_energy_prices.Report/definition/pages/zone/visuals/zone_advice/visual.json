@@ -1,0 +1,109 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
+  "name": "zone_advice",
+  "position": {
+    "x": 934,
+    "y": 162,
+    "z": 1000,
+    "width": 330,
+    "height": 528,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_time_of_day"
+                    }
+                  },
+                  "Property": "time_label"
+                }
+              },
+              "queryRef": "dim_time_of_day.time_label",
+              "nativeQueryRef": "time_label",
+              "displayName": "Heure"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_price_interval"
+                    }
+                  },
+                  "Property": "consumption_advice"
+                }
+              },
+              "queryRef": "fact_price_interval.consumption_advice",
+              "nativeQueryRef": "consumption_advice",
+              "displayName": "Conseil"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_price_interval"
+                    }
+                  },
+                  "Property": "Prix moyen (c€/kWh)"
+                }
+              },
+              "queryRef": "fact_price_interval.Prix moyen (c€/kWh)",
+              "nativeQueryRef": "Prix moyen (c€/kWh)",
+              "displayName": "c€/kWh"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "dim_time_of_day"
+                  }
+                },
+                "Property": "time_label"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Conseil quart d''heure par quart d''heure'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

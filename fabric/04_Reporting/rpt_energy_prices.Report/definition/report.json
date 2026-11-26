@@ -5,13 +5,18 @@
       "name": "CY24SU06",
       "reportVersionAtImport": "5.56",
       "type": "SharedResources"
+    },
+    "customTheme": {
+      "name": "EnergyGrid.json",
+      "reportVersionAtImport": "5.56",
+      "type": "RegisteredResources"
     }
   },
   "layoutOptimization": "None",
   "filterConfig": {
     "filters": [
       {
-        "name": "b4a81a74c5d3379d0a98",
+        "name": "report_followed_zones",
         "field": {
           "Column": {
             "Expression": {
@@ -27,7 +32,7 @@
           "Version": 2,
           "From": [
             {
-              "Name": "z",
+              "Name": "s",
               "Entity": "dim_bidding_zone",
               "Type": 0
             }
@@ -41,7 +46,7 @@
                       "Column": {
                         "Expression": {
                           "SourceRef": {
-                            "Source": "z"
+                            "Source": "s"
                           }
                         },
                         "Property": "zone_code"
@@ -104,6 +109,17 @@
           "name": "CY24SU06",
           "path": "BaseThemes/CY24SU06.json",
           "type": "BaseTheme"
+        }
+      ]
+    },
+    {
+      "name": "RegisteredResources",
+      "type": "RegisteredResources",
+      "items": [
+        {
+          "name": "EnergyGrid.json",
+          "path": "EnergyGrid.json",
+          "type": "CustomTheme"
         }
       ]
     }

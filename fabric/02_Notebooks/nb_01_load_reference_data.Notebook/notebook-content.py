@@ -22,12 +22,21 @@
 # MARKDOWN ********************
 
 # # nb_01_load_reference_data
-# **Rôle** : charger les données de référence de la couche silver.
-# * `silver.dim_bidding_zone` — liste des zones de marché suivies (source : package `energy_toolkit`, versionné) ;
-# * `silver.dim_date` — calendrier généré **100 % en Spark** (aucun pandas) ;
-# * `silver.public_holiday` — jours fériés par pays via la librairie `holidays` installée dans l'environnement.
 # 
-# Les jours fériés font baisser la consommation, donc les prix : c'est une variable explicative clé.
+# Chargement des tables de référence de la couche silver.
+# 
+# | | |
+# |---|---|
+# | Couche | Silver |
+# | Écrit | `silver.dim_bidding_zone`, `silver.dim_date`, `silver.public_holiday` |
+# | Sources | module `energy_toolkit.reference`, bibliothèque `holidays` |
+# | Déclenchement | manuel, après `nb_00_setup_lakehouse` puis à chaque ajout de zone |
+# | Ré-exécutable | oui, rechargement complet (`overwrite`) |
+# 
+# Paramètres :
+# - `calendar_start_date`, `calendar_end_date` : bornes du calendrier généré (`yyyy-MM-dd`).
+# 
+# Les jours fériés sont chargés parce qu'ils modifient la demande et donc le profil de prix ; ils sont repris dans `gold.fact_daily_price`.
 
 # PARAMETERS CELL ********************
 
@@ -63,7 +72,9 @@ print(f"energy_toolkit {toolkit_version} | holidays {holidays.__version__}")
 
 # MARKDOWN ********************
 
-# ## 1. Zones de marché (full refresh : petite table de référence)
+# ## 1. Zones de marché
+# 
+# La liste des zones est définie dans `energy_toolkit.reference`, versionnée avec le code. La table est petite : elle est réécrite à chaque exécution.
 
 # CELL ********************
 
@@ -85,8 +96,9 @@ display(spark.table("silver.dim_bidding_zone").orderBy("region_name", "zone_code
 
 # MARKDOWN ********************
 
-# ## 2. Calendrier généré par Spark
-# `sequence()` + `explode()` produit une ligne par jour, sans boucle Python ni pandas.
+# ## 2. Calendrier
+# 
+# Le calendrier est produit avec `sequence()` et `explode()`, une ligne par jour. `day_of_week_number` suit la norme ISO (1 = lundi).
 
 # CELL ********************
 
@@ -117,9 +129,9 @@ print(f"silver.dim_date: {calendar_df.count()} days")
 
 # MARKDOWN ********************
 
-# ## 3. Jours fériés par pays
-# Le volume est minuscule (quelques centaines de lignes) : générer la liste côté driver puis
-# la convertir en DataFrame Spark avec un schéma explicite est la bonne approche.
+# ## 3. Jours fériés
+# 
+# Quelques centaines de lignes : la liste est construite côté driver puis convertie en DataFrame avec un schéma explicite.
 
 # CELL ********************
 

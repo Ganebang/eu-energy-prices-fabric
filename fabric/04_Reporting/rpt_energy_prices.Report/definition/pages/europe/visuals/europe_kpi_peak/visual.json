@@ -1,0 +1,60 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
+  "name": "europe_kpi_peak",
+  "position": {
+    "x": 812,
+    "y": 66,
+    "z": 1000,
+    "width": 143,
+    "height": 86,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_price_interval"
+                    }
+                  },
+                  "Property": "Prime de pointe %"
+                }
+              },
+              "queryRef": "fact_price_interval.Prime de pointe %",
+              "nativeQueryRef": "Prime de pointe %"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Prime de pointe 8h-20h'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

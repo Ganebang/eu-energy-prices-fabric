@@ -22,18 +22,23 @@
 # MARKDOWN ********************
 
 # # nb_10_ingest_day_ahead_prices
-# **Rôle** : ingérer les prix day-ahead EPEX Spot d'**une** zone de marché, de la source jusqu'à silver.
 # 
-# ```
-# api.energy-charts.info/price ──► Files/bronze/... (JSON brut, immuable)
-#                              ──► bronze.day_ahead_price_raw (append)
-#                              ──► silver.day_ahead_price (MERGE idempotent)
-#                              ──► ops.ingestion_log
-# ```
-# **Idempotence** : on peut relancer le notebook autant de fois que l'on veut (la publication des prix du
-# lendemain a lieu vers 12h45 CET) : aucune ligne n'est dupliquée, seules les corrections de prix sont mises à jour.
+# Ingestion des prix day-ahead EPEX Spot d'une zone de marché, de l'API jusqu'à la couche silver.
 # 
-# **Paramètres** (surchargés par le pipeline via *Base parameters*) : `zone_code`, `start_date`, `end_date`, `pipeline_run_id`.
+# | | |
+# |---|---|
+# | Couche | Bronze → Silver |
+# | Source | `api.energy-charts.info/price` (Fraunhofer ISE, licence CC BY 4.0) |
+# | Écrit | `Files/bronze/energy_charts/day_ahead_price/`, `bronze.day_ahead_price_raw`, `silver.day_ahead_price`, `ops.ingestion_log` |
+# | Déclenchement | `pl_energy_daily`, une exécution par zone |
+# | Ré-exécutable | oui, `MERGE` sur (`zone_code`, `interval_start_utc`) |
+# 
+# Paramètres (transmis par le pipeline) :
+# - `zone_code` : code de zone Energy-Charts, par exemple `FR`, `BE`, `DE-LU`, `NL`, `ES` ;
+# - `start_date`, `end_date` : fenêtre `yyyy-MM-dd` ; vides, la fenêtre va de J-1 à J+1 (UTC) ;
+# - `pipeline_run_id` : identifiant d'exécution, `manual` en lancement interactif.
+# 
+# Les prix du lendemain sont publiés vers 12h45 (heure de Paris). Le notebook peut être relancé autant de fois que nécessaire : les intervalles déjà chargés ne sont mis à jour que si le prix a changé.
 
 # PARAMETERS CELL ********************
 
@@ -85,8 +90,9 @@ print(f"Zone {zone.zone_code} ({zone.country_name}) | window {window_start} -> {
 
 # MARKDOWN ********************
 
-# ## 1. Extract — appel API et dépôt du JSON brut dans OneLake (bronze/Files)
-# Conserver le *payload* d'origine permet de rejouer n'importe quel chargement sans rappeler l'API.
+# ## 1. Extraction
+# 
+# Appels séquentiels par tranches de 31 jours au plus, avec une pause entre deux appels. Chaque réponse est déposée telle quelle dans `Files/bronze`, ce qui permet de recharger une période sans rappeler l'API.
 
 # CELL ********************
 
@@ -131,7 +137,9 @@ if rows_read == 0:
 
 # MARKDOWN ********************
 
-# ## 2. Bronze — append des lignes brutes + métadonnées de lignage
+# ## 2. Bronze
+# 
+# Ajout des lignes brutes avec les colonnes de lignage (`source_file`, `ingested_at_utc`, `pipeline_run_id`).
 
 # CELL ********************
 
@@ -161,10 +169,11 @@ bronze_price_df.write.mode("append").saveAsTable("bronze.day_ahead_price_raw")
 
 # MARKDOWN ********************
 
-# ## 3. Silver — typage, résolution, heure locale, conversion d'unité
-# * La **résolution** (15 ou 60 min) est déduite de l'écart avec l'intervalle suivant : le code reste valable
-#   avant et après le passage d'EPEX au pas quart-horaire (1er octobre 2025).
-# * L'heure **locale** est calculée avec le fuseau du marché (gestion automatique des changements d'heure).
+# ## 3. Silver
+# 
+# - La résolution (15 ou 60 minutes) est déduite de l'écart avec l'intervalle voisin. Le même code traite donc les données antérieures et postérieures au passage d'EPEX au pas de 15 minutes (1er octobre 2025). Elle est plafonnée à 60 minutes pour qu'un trou dans les données ne crée pas un intervalle de plusieurs heures.
+# - L'heure locale et la date de livraison sont calculées dans le fuseau du marché, ce qui gère les changements d'heure.
+# - `price_ct_kwh` = `price_eur_mwh` / 10.
 
 # CELL ********************
 
@@ -207,8 +216,8 @@ print(merge_metrics)
 # MARKDOWN ********************
 
 # ## 4. Journalisation et sortie
-# `notebookutils.notebook.exit()` renvoie un JSON lisible par le pipeline :
-# `@activity('Ingest prices').output.result.exitValue`.
+# 
+# Le notebook écrit une ligne dans `ops.ingestion_log` et renvoie un JSON au pipeline (`status`, `rows_read`, `rows_inserted`, `rows_updated`), lisible via `@activity('Ingest day-ahead prices').output.result.exitValue`.
 
 # CELL ********************
 
